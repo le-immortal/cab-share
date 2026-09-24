@@ -1,4 +1,4 @@
-# Cab Share — Product & Technical Specification (v1)
+# Cab Share: Product & Technical Specification (v1)
 
 ## 1. Overview
 
@@ -19,7 +19,7 @@ backend.
 - Let anyone verified search/browse trips by origin, destination, date, time.
 - Let a user save a search so they're notified when a matching trip appears.
 - Let a user request to join a trip, and the poster accept/decline.
-- Give matched users an in-app chat to coordinate — no forced contact-info
+- Give matched users an in-app chat to coordinate, with no forced contact-info
   sharing.
 - Verify every user is a real employee of a pre-approved company via a
   work-email OTP check.
@@ -27,12 +27,12 @@ backend.
 
 ## 3. Non-Goals (explicitly out of scope for v1)
 
-- Payment processing or in-app fare splitting — riders settle the fare
+- Payment processing or in-app fare splitting: riders settle the fare
   between themselves offline.
-- Ratings/reviews, gender-based matching/filtering — v1 trust & safety is
+- Ratings/reviews, gender-based matching/filtering: v1 trust & safety is
   limited to report/block.
-- Multi-city support — single city launch only.
-- Recurring/daily-commute trip templates — every trip is posted one-off in
+- Multi-city support: single city launch only.
+- Recurring/daily-commute trip templates: every trip is posted one-off in
   v1 (flagged as a likely fast-follow, see §11).
 - SMS or mobile push notifications.
 - Native mobile apps.
@@ -77,7 +77,7 @@ list (map view is a nice-to-have, not required for v1).
 ### 6.3 Saved search alerts (opt-in auto-match)
 A user can save a search (origin, destination, date range) as an **alert**.
 Whenever a new trip is posted that matches an active alert, the alert owner
-is notified (email + Teams). This sits alongside manual browsing — it does
+is notified (email + Teams). This sits alongside manual browsing; it does
 not replace it.
 
 ### 6.4 Join requests & in-app chat
@@ -108,14 +108,14 @@ accepted/declined, new chat message, saved-search alert match.
 
 ## 8. Data Model (entities)
 
-- **User** — id, workEmail, companyDomain, displayName, teamsConversationRef?, status, createdAt
-- **CompanyDomain** — id, domain, companyName, status, addedBy, createdAt
-- **Trip** — id, postedByUserId, origin, originGeo, destination, destinationGeo, date, time, isFlexibleTime, seatsAvailable, notes, status, createdAt
-- **JoinRequest** — id, tripId, requestedByUserId, status(pending/accepted/declined/cancelled), createdAt, respondedAt
-- **ChatThread** — id, joinRequestId, createdAt
-- **ChatMessage** — id, threadId, senderUserId, body, sentAt
-- **SavedSearchAlert** — id, userId, originQuery, destinationQuery, dateRangeStart, dateRangeEnd, active, createdAt
-- **Report** — id, reportedByUserId, targetType(user/trip/message), targetId, reason, details, status, createdAt
+- **User**: id, workEmail, companyDomain, displayName, teamsConversationRef?, status, createdAt
+- **CompanyDomain**: id, domain, companyName, status, addedBy, createdAt
+- **Trip**: id, postedByUserId, origin, originGeo, destination, destinationGeo, date, time, isFlexibleTime, seatsAvailable, notes, status, createdAt
+- **JoinRequest**: id, tripId, requestedByUserId, status(pending/accepted/declined/cancelled), createdAt, respondedAt
+- **ChatThread**: id, joinRequestId, createdAt
+- **ChatMessage**: id, threadId, senderUserId, body, sentAt
+- **SavedSearchAlert**: id, userId, originQuery, destinationQuery, dateRangeStart, dateRangeEnd, active, createdAt
+- **Report**: id, reportedByUserId, targetType(user/trip/message), targetId, reason, details, status, createdAt
 
 ## 9. High-Level API Surface (shared by web + bot)
 
@@ -141,29 +141,29 @@ GET    /admin/reports
 
 ## 10. Architecture & Tech Stack
 
-- **apps/web** — React (Vite) SPA. OTP-based login, session via JWT/cookie.
-- **apps/bot** — Bot Framework SDK (Node/TypeScript), Adaptive Cards for
+- **apps/web**: React (Vite) SPA. OTP-based login, session via JWT/cookie.
+- **apps/bot**: Bot Framework SDK (Node/TypeScript), Adaptive Cards for
   trip cards, join requests, and chat; registered as an Azure Bot Service
   resource.
-- **apps/api** — Node.js/TypeScript (Express or Fastify) REST API, the
+- **apps/api**: Node.js/TypeScript (Express or Fastify) REST API, the
   single source of truth consumed by both the web app and the bot.
-- **packages/shared** — shared TypeScript types/DTOs across all three apps.
-- **Database** — PostgreSQL (PostGIS extension for radius/geo search),
+- **packages/shared**: shared TypeScript types/DTOs across all three apps.
+- **Database**: PostgreSQL (PostGIS extension for radius/geo search),
   accessed via Prisma.
-- **Email** — SendGrid or Azure Communication Services Email, for OTP and
+- **Email**: SendGrid or Azure Communication Services Email, for OTP and
   notifications.
-- **Hosting** — Azure App Service/Container Apps for `api`/`web`, Azure Bot
+- **Hosting**: Azure App Service/Container Apps for `api`/`web`, Azure Bot
   Service for the Teams channel registration.
 
 ## 11. Non-Functional Requirements
 
-- **Privacy** — store only what's needed (work email, display name, company,
+- **Privacy**: store only what's needed (work email, display name, company,
   trip data). No phone numbers or personal emails are collected by the
   platform itself. Location data is limited to the origin/destination points
   a user explicitly enters.
-- **Security** — rate-limit OTP requests/attempts; short OTP expiry; signed
+- **Security**: rate-limit OTP requests/attempts; short OTP expiry; signed
   session tokens; admin actions gated behind an admin role check.
-- **Scale target** — single city, low-thousands of users — no need for
+- **Scale target**: single city, low-thousands of users, with no need for
   heavy horizontal scaling in v1.
 
 ## 12. Known Platform Risk: Teams distribution across companies
@@ -173,7 +173,7 @@ org-wide, or (b) publication to the public Teams App Store so any
 individual can add it personally. Since partner companies are separate
 tenants and we don't want to chase admin approval per company, **v1 assumes
 route (b): publish as a personally-installable Teams app**, relying on the
-work-email OTP check (§5) — not tenant membership — as the actual trust
+work-email OTP check (§5), not tenant membership, as the actual trust
 boundary. Revisit if a partner company blocks personal app installs
 tenant-wide.
 
